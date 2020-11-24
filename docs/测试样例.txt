@@ -1,0 +1,61 @@
+sqlite shell交互实例在vSQL/build/bin/vSQL
+而我实现的部分在vSQL/build/lib/libvtable
+目前只在linux平台下测试过
+
+cd vSQL/build/bin
+启动进程
+./vSQL testcase
+
+加载自己实现的存储引擎
+.load ../lib/libvtable
+
+建表
+CREATE VIRTUAL TABLE websites USING vtable(id int primary key, name varchar, url varchar);
+
+测试插入
+INSERT INTO websites VALUES
+    (1, '百度', 'https://www.baidu.com/'),
+    (65, 'Google', 'https://www.google.cn/');
+
+测试更新
+UPDATE websites SET url = 'https://www.google.com/' WHERE id = 65;
+
+INSERT INTO websites VALUES
+    (3, 'quora', 'http://www.quora.com'),
+    (1200, 'stackoverflow', 'http://stackoverflow.com/');
+
+测试查询
+SELECT * FROM websites;
+测试删除和条件过滤
+DELETE FROM websites WHERE id > 1 AND url like 'http:%';
+查看结果是否符合预期
+SELECT count(*) FROM websites;
+
+INSERT INTO websites VALUES(333, 'taobao', 'https://www.taobao.com/');
+SELECT id, name FROM Websites ORDER BY id DESC;
+
+
+CREATE VIRTUAL TABLE web_attr USING vtable (  id int primary key, alexa int, count int);
+
+INSERT INTO web_attr VALUES (1, 7, 998244), (65, 33, 12333), (333, 21, 8853);
+
+测试多表交互(只提供了简单支持)
+PS.由于加上了调试信息，这里输出的结果会被调试信息打散了
+SELECT name
+    FROM websites
+    WHERE id IN (
+        SELECT id from web_attr
+        WHERE count > 12000);
+
+
+安全退出
+.exit
+
+./vSQL testcase
+.load ../lib/libvtable
+
+测试持久化
+SELECT * FROM websites;
+SELECT * FROM web_attr;
+
+
